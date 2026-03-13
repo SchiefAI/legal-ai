@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dutch Legal AI Benchmark 2026</title>
+
+<!-- PWA -->
+<meta name="application-name" content="Legal AI Benchmark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Legal AI">
+<meta name="theme-color" content="#f7f5f0">
+<meta name="description" content="Dutch Legal AI Benchmark 2026 — vergelijking van juridische AI-tools voor de Nederlandse markt">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --paper:       #f5f2eb;
+  --paper-dark:  #e8e3d6;
+  --ink:         #111110;
+  --ink-mid:     #2e2e2a;
+  --ink-light:   #4a4845;
+  --ink-ghost:   #585552;
+  --rule:        #d0cdc4;
+  --accent:      #0f2a45;
+  --accent-mid:  #1f5a96;
+  --accent-bg:   #deeaf5;
+  --green:       #123520;
+  --amber:       #633f08;
+  --red:         #6e1818;
+}
+
+[data-theme="dark"] {
+  --paper:       #0c1d2e;
+  --paper-dark:  #0a1622;
+  --ink:         #edeae0;
+  --ink-mid:     #c8c4b8;
+  --ink-light:   #9fa09a;
+  --ink-ghost:   #7a7c78;
+  --rule:        #1e3248;
+  --accent:      #7aaedc;
+  --accent-mid:  #5a9fd4;
+  --accent-bg:   #0f2a42;
+  --green:       #4db87a;
+  --amber:       #d4943a;
+  --red:         #e06a6a;
+}
+
+/* THEME TOGGLE */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--ink-ghost);
+  border-radius: 20px;
+  padding: 5px 10px 6px;
+  color: var(--ink-ghost);
+  transition: color 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+
+.theme-toggle:hover {
+  color: var(--ink-light);
+  border-color: var(--ink-light);
+}
+
+.theme-icon { font-size: 0.72rem; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html, body, .header, .nav-tabs, .main, .footer-bar, .gc, .stat-item, .m-block, .prompt-card, .sc-cell, .score-grid {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER */
+.header { border-bottom: 1px solid var(--rule); }
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 44px 64px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.wordmark-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 8px;
+}
+
+.wordmark-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.2rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.wordmark-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.wordmark-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.87rem;
+  letter-spacing: 0.1em;
+  color: var(--ink-ghost);
+  margin-top: 10px;
+}
+
+.badge-poc {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  border: 1px solid var(--ink-ghost);
+  padding: 5px 14px 6px;
+  border-radius: 20px;
+  background: transparent;
+  white-space: nowrap;
+}
+
+/* NAV */
+.nav-tabs {
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-tabs-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 64px;
+  display: flex;
+}
+
+.nav-tab {
+  padding: 16px 24px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.84rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: var(--ink-light);
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.nav-tab:hover { color: var(--ink); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+
+/* MAIN */
+.main { max-width: 1200px; margin: 0 auto; padding: 56px 64px 96px; }
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.25s ease forwards; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* SECTION RULE */
+.sec-rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.sec-rule-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  white-space: nowrap;
+}
+
+.sec-rule-line { flex: 1; height: 1px; background: var(--rule); }
+
+/* STAT ROW */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--rule);
+  margin-bottom: 52px;
+}
+
+.stat-item {
+  padding: 28px 36px;
+  border-right: 1px solid var(--rule);
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3.4rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.stat-lbl {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-top: 6px;
+}
+
+/* RANKING TABLE */
+.ranking-table { width: 100%; border-collapse: collapse; margin-bottom: 52px; }
+
+.ranking-table th {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  padding: 0 16px 12px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 400;
+}
+
+.ranking-table td {
+  padding: 18px 16px 18px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.88rem;
+  vertical-align: middle;
+}
+
+.ranking-table tbody tr:last-child td { border-bottom: none; }
+.ranking-table tbody tr { transition: background 0.1s; }
+.ranking-table tbody tr:hover td { background: var(--paper-dark); }
+
+.rk-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.65rem;
+  font-weight: 300;
+  color: var(--ink-ghost);
+  line-height: 1;
+  width: 44px;
+}
+.rk-num.top1 { color: var(--ink); }
+.rk-num.top2 { color: var(--ink-mid); }
+.rk-num.top3 { color: var(--ink-light); }
+
+.t-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.t-type {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-light);
+  margin-top: 3px;
+}
+
+.bar-wrap { display: flex; align-items: center; gap: 12px; min-width: 150px; }
+.bar-track { flex: 1; height: 2px; background: var(--rule); }
+.bar-fill  { height: 100%; background: var(--ink); transition: width 0.9s cubic-bezier(.16,1,.3,1); }
+.bar-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.87rem;
+  color: var(--ink-mid);
+  width: 28px;
+  text-align: right;
+}
+
+.pill {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 9px 4px;
+  border-radius: 20px;
+  border: 1px solid currentColor;
+}
+.pill-g { color: var(--green);  background: rgba(26,74,46,.06); }
+.pill-a { color: var(--amber);  background: rgba(122,80,16,.06); }
+.pill-r { color: var(--red);    background: rgba(139,32,32,.06); }
+.pill-b { color: var(--accent); background: var(--accent-bg); }
+
+/* GRID PANELS */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 52px;
+}
+
+.gc { background: var(--paper); padding: 30px 34px; }
+.gc-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin-bottom: 22px;
+}
+
+/* RADAR */
+.tool-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+.tool-chip {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.87rem;
+  letter-spacing: 0.1em;
+  padding: 5px 16px 6px;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tool-chip:hover { border-color: var(--ink-mid); color: var(--ink); }
+.tool-chip.active { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+.dim-row {
+  display: grid;
+  grid-template-columns: 130px 1fr 32px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.dim-lbl { font-family: 'DM Mono', monospace; font-size: 0.87rem; letter-spacing: 0.06em; color: var(--ink-light); }
+.dim-val { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--ink-mid); text-align: right; }
+
+/* PROMPTS */
+.prompt-list {
+  display: flex; flex-direction: column;
+  gap: 1px; background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.prompt-card {
+  background: var(--paper);
+  padding: 18px 22px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+.prompt-card:hover { background: var(--paper-dark); }
+.prompt-card.selected { background: var(--accent-bg); border-left-color: var(--accent); }
+
+.p-cat {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.63rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 5px;
+}
+.p-text { font-size: 0.86rem; line-height: 1.5; color: var(--ink-mid); }
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-top: 20px;
+}
+
+.sc-cell { background: var(--paper); padding: 14px 8px; text-align: center; }
+.sc-cell-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.60rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-light);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.sc-ring {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 600;
+}
+.sc5 { border: 1.5px solid var(--green);      color: var(--green);      background: rgba(26,74,46,.07); }
+.sc4 { border: 1.5px solid var(--accent-mid); color: var(--accent-mid); background: var(--accent-bg); }
+.sc3 { border: 1.5px solid var(--amber);      color: var(--amber);      background: rgba(122,80,16,.07); }
+.sc2 { border: 1.5px solid #b07020;           color: #b07020;           background: rgba(176,112,32,.07); }
+.sc1 { border: 1.5px solid var(--red);        color: var(--red);        background: rgba(139,32,32,.07); }
+
+/* METHODE */
+.methode-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.m-block { background: var(--paper); padding: 34px 38px; }
+
+.m-block h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--ink);
+  margin-bottom: 22px;
+}
+
+.m-item {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--ink-mid);
+}
+
+.m-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--ink-ghost);
+  padding-top: 2px;
+}
+
+.m-item strong { color: var(--ink); font-weight: 500; }
+
+/* FOOTER */
+.footer-bar { border-top: 1px solid var(--rule); }
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 64px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-ghost);
+}
+
+canvas { max-height: 280px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="wordmark-eyebrow">Editie 2026 · Nederlandse Juridische Markt</div>
+      <div class="wordmark-title">Dutch Legal AI <em>Benchmark</em></div>
+      <div class="wordmark-sub">5 tools geëvalueerd &nbsp;·&nbsp; 12 prompts &nbsp;·&nbsp; 4 juristen in panel</div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:12px;padding-bottom:2px">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" aria-label="Wissel thema">
+        <span class="theme-icon" id="themeIcon">☀︎</span>
+      </button>
+      <span class="badge-poc">Proof of Concept</span>
+    </div>
+  </div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <button class="nav-tab active" onclick="showPanel('ranking',this)">Ranking</button>
+    <button class="nav-tab" onclick="showPanel('radar',this)">Radarprofielen</button>
+    <button class="nav-tab" onclick="showPanel('prompts',this)">Promptbibliotheek</button>
+    <button class="nav-tab" onclick="showPanel('methode',this)">Methode</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- RANKING -->
+  <div id="panel-ranking" class="panel active">
+    <div class="stat-row">
+      <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">Tools geëvalueerd</div></div>
+      <div class="stat-item"><div class="stat-num">12</div><div class="stat-lbl">Juridische prompts</div></div>
+      <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Juristen in panel</div></div>
+    </div>
+
+    <div class="sec-rule"><span class="sec-rule-label">Totaalranking</span><div class="sec-rule-line"></div></div>
+
+    <table class="ranking-table">
+      <thead><tr>
+        <th style="width:44px">#</th>
+        <th>Tool</th>
+        <th>Totaalscore</th>
+        <th>Juistheid</th>
+        <th>Bronnen</th>
+        <th>Hallucinaties</th>
+        <th>Sterkste gebied</th>
+      </tr></thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+
+    <div class="sec-rule"><span class="sec-rule-label">Scores per dimensie</span><div class="sec-rule-line"></div></div>
+
+    <div class="grid-2">
+      <div class="gc"><div class="gc-title">Alle tools · alle dimensies</div><canvas id="barChart"></canvas></div>
+      <div class="gc"><div class="gc-title">Beste tool per toepassingsgebied</div><canvas id="categoryChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- RADAR -->
+  <div id="panel-radar" class="panel">
+    <div class="sec-rule"><span class="sec-rule-label">Selecteer een tool</span><div class="sec-rule-line"></div></div>
+    <div class="tool-chips" id="radarSelector"></div>
+    <div class="grid-2">
+      <div class="gc"><div class="gc-title" id="radarTitle">—</div><canvas id="radarChart"></canvas></div>
+      <div class="gc"><div class="gc-title">Dimensie-uitsplitsing</div><div id="dimBars" style="margin-top:8px"></div></div>
+    </div>
+  </div>
+
+  <!-- PROMPTS -->
+  <div id="panel-prompts" class="panel">
+    <div class="sec-rule"><span class="sec-rule-label">Promptbibliotheek</span><div class="sec-rule-line"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+      <div class="prompt-list" id="promptList"></div>
+      <div id="promptDetail">
+        <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost);margin-bottom:14px">Selecteer een prompt</div>
+        <p style="font-size:0.82rem;color:var(--ink-light);line-height:1.6">Klik op een prompt om de beoordelingen per tool te zien.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- METHODE -->
+  <div id="panel-methode" class="panel">
+    <div class="sec-rule"><span class="sec-rule-label">Methodologie</span><div class="sec-rule-line"></div></div>
+    <div class="methode-grid">
+      <div class="m-block">
+        <h3>Scoringsrubric</h3>
+        <div class="m-item"><span class="m-num">01</span><div><strong>Juridische juistheid</strong> — Correct naar Nederlands recht?</div></div>
+        <div class="m-item"><span class="m-num">02</span><div><strong>Volledigheid</strong> — Alle relevante aspecten behandeld?</div></div>
+        <div class="m-item"><span class="m-num">03</span><div><strong>Bronverwijzingen</strong> — Correcte wetsartikelen en jurisprudentie?</div></div>
+        <div class="m-item"><span class="m-num">04</span><div><strong>Kwaliteit redenering</strong> — Logisch en coherent?</div></div>
+        <div class="m-item"><span class="m-num">05</span><div><strong>Hallucinaties</strong> — Niet-bestaande bronnen geciteerd?</div></div>
+      </div>
+      <div class="m-block">
+        <h3>Expertpanel</h3>
+        <div class="m-item"><span class="m-num">—</span><div><strong>Civiel recht</strong> — Contractrecht en aansprakelijkheid</div></div>
+        <div class="m-item"><span class="m-num">—</span><div><strong>Arbeidsrecht</strong> — CAO-interpretatie en ontslag</div></div>
+        <div class="m-item"><span class="m-num">—</span><div><strong>Bestuursrecht</strong> — Vergunningen, bezwaar en beroep</div></div>
+        <div class="m-item"><span class="m-num">—</span><div><strong>Compliance</strong> — AVG en financiële regelgeving</div></div>
+        <br>
+        <p style="font-size:0.82rem;color:var(--ink-light);line-height:1.7">Elke prompt wordt onafhankelijk beoordeeld door minimaal 2 juristen. Bij afwijking van meer dan 1 punt volgt consensusbespreking. Blind review — de tool-naam is niet bekend bij de beoordelaar.</p>
+      </div>
+      <div class="m-block">
+        <h3>Promptcategorieën</h3>
+        <div class="m-item"><span class="m-num">3×</span><div>Contractanalyse</div></div>
+        <div class="m-item"><span class="m-num">3×</span><div>Jurisprudentiesamenvatting</div></div>
+        <div class="m-item"><span class="m-num">2×</span><div>Wetsinterpretatie</div></div>
+        <div class="m-item"><span class="m-num">2×</span><div>Compliance advies</div></div>
+        <div class="m-item"><span class="m-num">2×</span><div>Juridisch argumenteren</div></div>
+      </div>
+      <div class="m-block">
+        <h3>Beoordelingsproces</h3>
+        <div class="m-item"><span class="m-num">01</span><div>Identieke prompts aan alle tools voorgelegd</div></div>
+        <div class="m-item"><span class="m-num">02</span><div>Output geanonimiseerd aangeboden aan panel</div></div>
+        <div class="m-item"><span class="m-num">03</span><div>Onafhankelijke scoring op 5 dimensies (1–5)</div></div>
+        <div class="m-item"><span class="m-num">04</span><div>Consensusbespreking bij afwijking &gt; 1 punt</div></div>
+        <div class="m-item"><span class="m-num">05</span><div>Gemiddelde scores worden gepubliceerd</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-bar">
+  <div class="footer-inner">
+    <span>Dutch Legal AI Benchmark 2026</span>
+    <span>Simulatiedata · Niet voor publicatie</span>
+    <span>ThinkAhead Digital</span>
+  </div>
+</div>
+
+<script>
+const tools = [
+  { name: "GenIA-L",    type: "Legal-specific NL",     scores: { juistheid:4.6, volledigheid:4.3, bronnen:4.7, redenering:4.4, hallucinaties:4.8 }, best:"Wetsinterpretatie" },
+  { name: "Harvey",     type: "Legal AI (US-focused)",  scores: { juistheid:4.1, volledigheid:4.4, bronnen:3.8, redenering:4.5, hallucinaties:4.2 }, best:"Contractanalyse" },
+  { name: "Claude 3.7", type: "General AI",             scores: { juistheid:3.8, volledigheid:4.2, bronnen:3.4, redenering:4.3, hallucinaties:3.9 }, best:"Juridisch redeneren" },
+  { name: "GPT-4o",     type: "General AI",             scores: { juistheid:3.5, volledigheid:3.9, bronnen:3.1, redenering:4.0, hallucinaties:3.6 }, best:"Compliance advies" },
+  { name: "Luminance",  type: "Legal AI (contracten)",  scores: { juistheid:4.0, volledigheid:3.7, bronnen:3.9, redenering:3.6, hallucinaties:4.3 }, best:"Contractanalyse" },
+];
+
+// Dynamic color getters — always reflect current theme
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+function getINK()    { return cssVar('--ink'); }
+function getLIGHT()  { return cssVar('--ink-light'); }
+function getGHOST()  { return cssVar('--ink-ghost'); }
+function getRULE()   { return cssVar('--rule'); }
+function getACCENT() { return cssVar('--accent'); }
+
+const paletteLight = ['#0f2a45','#1f5a96','#4a82b4','#7aaed0','#a8cce4'];
+const paletteDark  = ['#7aaedc','#5a9fd4','#9ec4e8','#bdd8f0','#d8ecf8'];
+function getPalette() {
+  return document.documentElement.dataset.theme === 'dark' ? paletteDark : paletteLight;
+}
+
+// THEME TOGGLE
+let barChartInst = null;
+let catChartInst = null;
+let radarChartInst = null;
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.dataset.theme === 'dark';
+  html.dataset.theme = isDark ? '' : 'dark';
+  document.getElementById('themeIcon').textContent = isDark ? '☀︎' : '☾';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  rebuildCharts();
+}
+
+// Restore saved theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+  document.documentElement.dataset.theme = 'dark';
+  document.addEventListener('DOMContentLoaded', () => {
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = '☾';
+  });
+}
+
+function total(t) {
+  const s = t.scores;
+  return ((s.juistheid+s.volledigheid+s.bronnen+s.redenering+s.hallucinaties)/5).toFixed(2);
+}
+
+const sorted = [...tools].sort((a,b) => total(b)-total(a));
+
+// RANKING TABLE
+const tbody = document.getElementById('rankingBody');
+sorted.forEach((t,i) => {
+  const sc = total(t);
+  const pct = (sc/5*100).toFixed(0);
+  const rnk = i===0?'top1':i===1?'top2':i===2?'top3':'';
+  const halPill = t.scores.hallucinaties>=4.5
+    ? `<span class="pill pill-g">Laag risico</span>`
+    : t.scores.hallucinaties>=4.0
+    ? `<span class="pill pill-b">Acceptabel</span>`
+    : `<span class="pill pill-a">Let op</span>`;
+  tbody.innerHTML += `
+    <tr>
+      <td><span class="rk-num ${rnk}">${i+1}</span></td>
+      <td><div class="t-name">${t.name}</div><div class="t-type">${t.type}</div></td>
+      <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><span class="bar-val">${sc}</span></div></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.80rem">${t.scores.juistheid.toFixed(1)}</td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.80rem">${t.scores.bronnen.toFixed(1)}</td>
+      <td>${halPill}</td>
+      <td><span class="pill pill-b">${t.best}</span></td>
+    </tr>`;
+});
+
+const monoFont = { family:'DM Mono', size:10 };
+function axisStyle()   { return { ticks:{color:getLIGHT(),font:monoFont}, grid:{color:getRULE()} }; }
+function axisNoGrid()  { return { ticks:{color:getLIGHT(),font:monoFont}, grid:{color:'transparent'} }; }
+
+// BAR CHART
+function buildBarChart() {
+  if (barChartInst) barChartInst.destroy();
+  const pal = getPalette();
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type:'bar',
+    data:{
+      labels:['Juistheid','Volledigheid','Bronnen','Redenering','Hallucinaties'],
+      datasets: sorted.map((t,i)=>({
+        label:t.name,
+        data:[t.scores.juistheid,t.scores.volledigheid,t.scores.bronnen,t.scores.redenering,t.scores.hallucinaties],
+        backgroundColor:pal[i]+'bb',
+        borderColor:pal[i],
+        borderWidth:1, borderRadius:1,
+      }))
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ labels:{color:getLIGHT(),font:monoFont,boxWidth:10} } },
+      scales:{ y:{...axisStyle(), min:0,max:5}, x:axisNoGrid() }
+    }
+  });
+}
+
+// CATEGORY CHART
+function buildCatChart() {
+  if (catChartInst) catChartInst.destroy();
+  const ac = getACCENT();
+  catChartInst = new Chart(document.getElementById('categoryChart'), {
+    type:'bar',
+    data:{
+      labels:['Contractanalyse','Jurisprudentie','Wetsinterpretatie','Compliance','Redeneren'],
+      datasets:[{ label:'Topscore', data:[4.4,4.5,4.6,4.1,4.5], backgroundColor:ac+'99', borderColor:ac, borderWidth:1, borderRadius:1 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{...axisStyle(),min:0,max:5}, y:axisNoGrid() }
+    }
+  });
+}
+
+function rebuildCharts() {
+  buildBarChart();
+  buildCatChart();
+  renderRadar(selTool);
+}
+
+buildBarChart();
+buildCatChart();
+
+// RADAR
+const radarSel = document.getElementById('radarSelector');
+let radarChart = null;
+let selTool = tools[0];
+
+tools.forEach(t => {
+  const btn = document.createElement('button');
+  btn.className = 'tool-chip'+(t===selTool?' active':'');
+  btn.textContent = t.name;
+  btn.onclick = () => {
+    document.querySelectorAll('.tool-chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selTool = t;
+    renderRadar(t);
+  };
+  radarSel.appendChild(btn);
+});
+
+function renderRadar(t) {
+  document.getElementById('radarTitle').textContent = t.name;
+  const dims = ['Juistheid','Volledigheid','Bronnen','Redenering','Hallucinaties'];
+  const vals = [t.scores.juistheid,t.scores.volledigheid,t.scores.bronnen,t.scores.redenering,t.scores.hallucinaties];
+  const ac = getACCENT();
+  if (radarChart) radarChart.destroy();
+
+  // Ensure canvas has correct dimensions by resetting it
+  const canvas = document.getElementById('radarChart');
+  canvas.style.width  = '';
+  canvas.style.height = '';
+
+  radarChart = new Chart(canvas, {
+    type:'radar',
+    data:{
+      labels:dims,
+      datasets:[{ label:t.name, data:vals, backgroundColor:ac+'22', borderColor:ac, borderWidth:1.5, pointBackgroundColor:ac, pointRadius:3 }]
+    },
+    options:{
+      responsive:true,
+      animation:{ duration: 400 },
+      scales:{ r:{ min:0,max:5, ticks:{color:getLIGHT(),stepSize:1,font:monoFont,backdropColor:'transparent'}, grid:{color:getRULE()}, pointLabels:{color:getINK(),font:{family:'DM Sans',size:11}} } },
+      plugins:{ legend:{display:false} }
+    }
+  });
+
+  const db = document.getElementById('dimBars');
+  db.innerHTML = '';
+  dims.forEach((d,i) => {
+    db.innerHTML += `
+      <div class="dim-row">
+        <div class="dim-lbl">${d}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(vals[i]/5*100).toFixed(0)}%"></div></div>
+        <div class="dim-val">${vals[i].toFixed(1)}</div>
+      </div>`;
+  });
+}
+
+renderRadar(selTool);
+
+// PROMPTS
+const prompts = [
+  { cat:"Contractanalyse",     text:"Analyseer de ontbindingsclausule in een commercieel huurcontract naar Nederlands recht en benoem de risico's.",  scores:[5,4,4,3,4] },
+  { cat:"Contractanalyse",     text:"Is deze non-concurrentieclausule rechtsgeldig voor een arbeidscontract van een medewerker in Utrecht?",           scores:[4,5,3,4,3] },
+  { cat:"Jurisprudentie",      text:"Vat het arrest HR 30 januari 2015, ECLI:NL:HR:2015:141 samen en geef de rechtsgevolgen.",                        scores:[5,3,5,4,2] },
+  { cat:"Jurisprudentie",      text:"Wat zijn de belangrijkste uitspraken van de Hoge Raad over de zorgplicht van banken de afgelopen 5 jaar?",      scores:[4,4,4,4,3] },
+  { cat:"Wetsinterpretatie",   text:"Leg artikel 6:162 BW uit in de context van online platforms en moderatiebeslissingen.",                          scores:[5,4,4,5,4] },
+  { cat:"Compliance",          text:"Voldoet dit privacybeleid aan de vereisten van de AVG? Benoem specifieke tekortkomingen.",                       scores:[4,4,3,4,5] },
+  { cat:"Juridisch redeneren", text:"Stel een pleitnotitie op voor de verwerende partij in een ontbindingsprocedure wegens dringende reden.",         scores:[4,5,3,5,3] },
+];
+
+const pList = document.getElementById('promptList');
+prompts.forEach(p => {
+  const div = document.createElement('div');
+  div.className = 'prompt-card';
+  div.innerHTML = `<div class="p-cat">${p.cat}</div><div class="p-text">${p.text}</div>`;
+  div.onclick = () => {
+    document.querySelectorAll('.prompt-card').forEach(c=>c.classList.remove('selected'));
+    div.classList.add('selected');
+    showDetail(p);
+  };
+  pList.appendChild(div);
+});
+
+function showDetail(p) {
+  const el = document.getElementById('promptDetail');
+  let html = `
+    <div style="font-family:'DM Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px">${p.cat}</div>
+    <p style="font-size:0.87rem;line-height:1.6;color:var(--ink-mid);margin-bottom:20px">${p.text}</p>
+    <div style="font-family:'DM Mono',monospace;font-size:0.63rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-ghost)">Scores per tool</div>
+    <div class="score-grid">`;
+  sorted.forEach((t,i) => {
+    const s = p.scores[i]||3;
+    html += `<div class="sc-cell"><div class="sc-cell-name">${t.name}</div><div class="sc-ring sc${s}">${s}</div></div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// NAV
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+  // Re-render radar after panel is visible so canvas dimensions are correct
+  if (name === 'radar') requestAnimationFrame(() => renderRadar(selTool));
+}
+
+// SW
+if ('serviceWorker' in navigator && !location.hostname.includes('claudeusercontent.com')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
